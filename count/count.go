@@ -22,3 +22,13 @@ func CountLines(file *os.File) (int, error) {
 	}
 	return lineCount, nil
 }
+
+func CountWords(file *os.File) (int, error) {
+	scanner := bufio.NewScanner(file)
+	wordCount := 0
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		wordCount++
+	}
+	return wordCount, nil
+}

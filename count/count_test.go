@@ -20,32 +20,36 @@ func TestCount(t *testing.T) {
 	if _, err := os.Stat(testFilepath); err != nil {
 		t.Fatalf("failed to get information on test file due to error: %v\nensure you have 'test.txt' at the root of the project", err)
 	}
-	file, err := os.Open(testFilepath)
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {
-			t.Fatalf("failed to close test file due to error: %v", err)
-		}
-	}(file)
-	if err != nil {
-		t.Fatalf("failed to open file due to error: %v", err)
-	}
-
 	testCases := []testCase{
-		{
-			name:    "Bytes Option (-c)",
-			countFn: CountBytes,
-			wcArgs:  []string{"wc", "-c", testFilepath},
-		},
 		{
 			name:    "Lines Option (-l)",
 			countFn: CountLines,
 			wcArgs:  []string{"wc", "-l", testFilepath},
 		},
+		{
+			name:    "Words Option (-w)",
+			countFn: CountWords,
+			wcArgs:  []string{"wc", "-w", testFilepath},
+		},
+		{
+			name:    "Bytes Option (-c)",
+			countFn: CountBytes,
+			wcArgs:  []string{"wc", "-c", testFilepath},
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			file, err := os.Open(testFilepath)
+			defer func(f *os.File) {
+				err := f.Close()
+				if err != nil {
+					t.Fatalf("failed to close test file due to error: %v", err)
+				}
+			}(file)
+			if err != nil {
+				t.Fatalf("failed to open file due to error: %v", err)
+			}
 			actual, err := tc.countFn(file)
 			if err != nil {
 				t.Fatalf("failed to get actual value due to error: %v", err)
