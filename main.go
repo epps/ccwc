@@ -11,6 +11,7 @@ import (
 var bytesOption bool
 var linesOption bool
 var wordsOption bool
+var charsOption bool
 
 func init() {
 	const (
@@ -20,6 +21,8 @@ func init() {
 		linesUsage = "The number of lines in each input file is written to the standard output."
 		words      = "w"
 		wordsUsage = "The number of words in each input file is written to the standard output."
+		chars      = "m"
+		charsUsage = "The number of characters in each input file is written to the standard output."
 	)
 
 	// Set the log flags to 0 to avoid the timestamp.
@@ -28,6 +31,7 @@ func init() {
 	flag.BoolVar(&bytesOption, bytes, false, bytesUsage)
 	flag.BoolVar(&linesOption, lines, false, linesUsage)
 	flag.BoolVar(&wordsOption, words, false, wordsUsage)
+	flag.BoolVar(&charsOption, chars, false, charsUsage)
 }
 
 func main() {
@@ -35,8 +39,20 @@ func main() {
 
 	files := flag.Args()
 
+	// Supports the default actions (i.e. when no flags are passed, the
+	// count is run as if the -c -l and -w options were selected).
+	if !linesOption && !wordsOption && !bytesOption && !charsOption {
+		linesOption, wordsOption, bytesOption = true, true, true
+	}
+
+	// Cancels out the bytes option in the even both bytes and character
+	// options are selected
+	if charsOption {
+		bytesOption = false
+	}
+
 	for _, f := range files {
-		lines, words, bytes, err := wc.Count(f, linesOption, wordsOption, bytesOption)
+		lines, words, bytes, chars, err := wc.Count(f, linesOption, wordsOption, bytesOption, charsOption)
 		if err != nil {
 			log.Fatalf(err.Error())
 		}
@@ -49,6 +65,9 @@ func main() {
 		}
 		if bytesOption {
 			output = fmt.Sprintf("%s%d\t", output, bytes)
+		}
+		if charsOption {
+			output = fmt.Sprintf("%s%d\t", output, chars)
 		}
 		log.Printf("%s%s", output, f)
 	}

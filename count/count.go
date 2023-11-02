@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func Count(filename string, linesOption, wordsOption, bytesOption bool) (lines, words, bytes int, err error) {
+func Count(filename string, linesOption, wordsOption, bytesOption, charsOption bool) (lines, words, bytes, chars int, err error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return
@@ -20,7 +20,7 @@ func Count(filename string, linesOption, wordsOption, bytesOption bool) (lines, 
 	if bytesOption {
 		fStat, err := file.Stat()
 		if err != nil {
-			return lines, words, bytes, err
+			return lines, words, bytes, chars, err
 		}
 		bytes = int(fStat.Size())
 	}
@@ -32,6 +32,14 @@ func Count(filename string, linesOption, wordsOption, bytesOption bool) (lines, 
 			line := scanner.Text()
 			wordsInLine := strings.Fields(line)
 			words += len(wordsInLine)
+		}
+	}
+	if charsOption {
+		file.Seek(0, 0)
+		scanner := bufio.NewScanner(file)
+		scanner.Split(bufio.ScanRunes)
+		for scanner.Scan() {
+			chars += 1
 		}
 	}
 	return
