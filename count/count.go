@@ -3,32 +3,36 @@ package count
 import (
 	"bufio"
 	"os"
+	"strings"
 )
 
-func CountBytes(file *os.File) (int, error) {
-	fStat, err := file.Stat()
+func Count(filename string, linesOption, wordsOption, bytesOption bool) (lines, words, bytes int, err error) {
+	file, err := os.Open(filename)
 	if err != nil {
-		return 0, nil
+		return
 	}
-	return int(fStat.Size()), nil
-}
-
-func CountLines(file *os.File) (int, error) {
-	scanner := bufio.NewScanner(file)
-	lineCount := 0
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		lineCount++
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			return
+		}
+	}(file)
+	if bytesOption {
+		fStat, err := file.Stat()
+		if err != nil {
+			return lines, words, bytes, err
+		}
+		bytes = int(fStat.Size())
 	}
-	return lineCount, nil
-}
-
-func CountWords(file *os.File) (int, error) {
-	scanner := bufio.NewScanner(file)
-	wordCount := 0
-	scanner.Split(bufio.ScanWords)
-	for scanner.Scan() {
-		wordCount++
+	if linesOption || wordsOption {
+		scanner := bufio.NewScanner(file)
+		scanner.Split(bufio.ScanLines)
+		for scanner.Scan() {
+			lines += 1
+			line := scanner.Text()
+			wordsInLine := strings.Fields(line)
+			words += len(wordsInLine)
+		}
 	}
-	return wordCount, nil
+	return
 }

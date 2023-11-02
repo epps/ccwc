@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	wc "github.com/epps/ccwc/count"
 )
@@ -37,37 +36,19 @@ func main() {
 	files := flag.Args()
 
 	for _, f := range files {
-		file, err := os.Open(f)
-		defer func(f *os.File) {
-			err := f.Close()
-			if err != nil {
-				log.Fatalf("failed to close file due to error: %v", err)
-			}
-		}(file)
+		lines, words, bytes, err := wc.Count(f, linesOption, wordsOption, bytesOption)
 		if err != nil {
-			log.Fatalf("failed to open file due to error: %v", err)
+			log.Fatalf(err.Error())
 		}
 		output := ""
 		if linesOption {
-			lines, err := wc.CountLines(file)
-			if err != nil {
-				log.Fatalf("failed to count lines in file %s due to error: %v", f, err)
-			}
 			output = fmt.Sprintf("%s%d\t", output, lines)
 		}
 		if wordsOption {
-			words, err := wc.CountWords(file)
-			if err != nil {
-				log.Fatalf("failed to count words in file %s due to error: %v", f, err)
-			}
 			output = fmt.Sprintf("%s%d\t", output, words)
 		}
 		if bytesOption {
-			size, err := wc.CountBytes(file)
-			if err != nil {
-				log.Fatalf("failed to count bytes in file %s due to error: %v", f, err)
-			}
-			output = fmt.Sprintf("%s%d\t", output, size)
+			output = fmt.Sprintf("%s%d\t", output, bytes)
 		}
 		log.Printf("%s%s", output, f)
 	}
