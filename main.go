@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"os"
 
 	wc "github.com/epps/ccwc/count"
 )
@@ -51,24 +53,41 @@ func main() {
 		bytesOption = false
 	}
 
-	for _, f := range files {
-		lines, words, bytes, chars, err := wc.Count(f, linesOption, wordsOption, bytesOption, charsOption)
+	if len(files) == 0 {
+		input, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			log.Fatalf("failed to read from stdin due to error: %v", err)
+		}
+
+		lines, words, bytes, chars, err := wc.CountFromBytes(input, linesOption, wordsOption, bytesOption, charsOption)
 		if err != nil {
 			log.Fatalf(err.Error())
 		}
-		output := ""
-		if linesOption {
-			output = fmt.Sprintf("%s%d\t", output, lines)
-		}
-		if wordsOption {
-			output = fmt.Sprintf("%s%d\t", output, words)
-		}
-		if bytesOption {
-			output = fmt.Sprintf("%s%d\t", output, bytes)
-		}
-		if charsOption {
-			output = fmt.Sprintf("%s%d\t", output, chars)
-		}
-		log.Printf("%s%s", output, f)
+		LogCounts(linesOption, wordsOption, bytesOption, charsOption, lines, words, bytes, chars, "")
 	}
+
+	for _, f := range files {
+		lines, words, bytes, chars, err := wc.CountFromFile(f, linesOption, wordsOption, bytesOption, charsOption)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+		LogCounts(linesOption, wordsOption, bytesOption, charsOption, lines, words, bytes, chars, f)
+	}
+}
+
+func LogCounts(l, w, b, c bool, lines, words, bytes, chars int, f string) {
+	output := ""
+	if l {
+		output = fmt.Sprintf("%s%d\t", output, lines)
+	}
+	if w {
+		output = fmt.Sprintf("%s%d\t", output, words)
+	}
+	if b {
+		output = fmt.Sprintf("%s%d\t", output, bytes)
+	}
+	if c {
+		output = fmt.Sprintf("%s%d\t", output, chars)
+	}
+	log.Printf("%s%s", output, f)
 }

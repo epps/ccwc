@@ -12,4 +12,4 @@ This repo is my solution to John Crickett's [Coding Challenge #1 - Build your ow
 - [x] 3: Implement `-w` (i.e. words) for the `test.txt` file
 - [x] 4: Implement `-m` (i.e. characters) for the `test.txt` file
 - [x] 5: Support default option (i.e. `-clm` in the absence of any flags)
-- [ ] 6: Implement support for standard input if no filename is specified
+- [x] 6: Implement support for standard input if no filename is specified

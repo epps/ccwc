@@ -48,7 +48,7 @@ func TestCount(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			lines, words, bytes, chars, err := Count(testFilepath, tc.linesOption, tc.wordsOption, tc.bytesOption, tc.charsOption)
+			lines, words, bytes, chars, err := CountFromFile(testFilepath, tc.linesOption, tc.wordsOption, tc.bytesOption, tc.charsOption)
 			if err != nil {
 				t.Fatalf("failed to get actual value due to error: %v", err)
 			}
